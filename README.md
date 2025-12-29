@@ -18,6 +18,7 @@
 ## 📋 Overview
 
 PerfectPay is a full-stack payment orchestration system designed to:
+
 - Route payments through optimal PSPs (Stripe, Wise, PayPal, Iyzico)
 - Detect and prevent fraud using a 7-rule engine
 - Optimize transaction costs based on user preferences
@@ -28,18 +29,21 @@ PerfectPay is a full-stack payment orchestration system designed to:
 ## ✨ Features
 
 ### 🔐 Security & Compliance
+
 - **JWT Authentication** - Secure token-based auth
 - **KYC/AML Integration** - Blacklist management
 - **Fraud Detection Engine** - 7 security rules with risk scoring
 - **Audit Logging** - Complete transaction audit trail
 
 ### 💳 Payment Processing
+
 - **Multi-PSP Support** - Stripe, Wise, PayPal, Iyzico
 - **Smart Routing** - Cost-optimized PSP selection
 - **Multi-Card Optimization** - Split payments across cards
 - **Real-time FX Rates** - Dynamic currency conversion
 
 ### 📊 Analytics & Transparency
+
 - **Transaction Map** - Geographic flow visualization
 - **PSP Performance Analytics** - Success rates, latency
 - **Admin Dashboard** - Charts and statistics
@@ -48,6 +52,7 @@ PerfectPay is a full-stack payment orchestration system designed to:
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+
 - PostgreSQL 15+
 - npm or yarn
@@ -124,28 +129,31 @@ perfectpay/
 ## 🔌 API Endpoints
 
 ### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/register` | Register new user |
-| POST | `/api/auth/login` | Login and get token |
+
+| Method | Endpoint             | Description         |
+| ------ | -------------------- | ------------------- |
+| POST   | `/api/auth/register` | Register new user   |
+| POST   | `/api/auth/login`    | Login and get token |
 
 ### Payments
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/payments` | Create payment |
-| POST | `/api/payments/transfer` | P2P money transfer |
-| GET | `/api/payments/receipt/:id` | Get smart receipt |
-| GET | `/api/payments/map/:id` | Get transaction map |
-| POST | `/api/payments/multi-card/analyze` | Analyze multi-card options |
-| POST | `/api/payments/estimate-route` | Estimate optimal route |
-| GET | `/api/payments/psps` | List available PSPs |
+
+| Method | Endpoint                           | Description                |
+| ------ | ---------------------------------- | -------------------------- |
+| POST   | `/api/payments`                    | Create payment             |
+| POST   | `/api/payments/transfer`           | P2P money transfer         |
+| GET    | `/api/payments/receipt/:id`        | Get smart receipt          |
+| GET    | `/api/payments/map/:id`            | Get transaction map        |
+| POST   | `/api/payments/multi-card/analyze` | Analyze multi-card options |
+| POST   | `/api/payments/estimate-route`     | Estimate optimal route     |
+| GET    | `/api/payments/psps`               | List available PSPs        |
 
 ### Admin
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/admin/dashboard` | Dashboard statistics |
-| GET | `/api/admin/users` | List all users |
-| GET | `/api/admin/transactions` | List all transactions |
+
+| Method | Endpoint                  | Description           |
+| ------ | ------------------------- | --------------------- |
+| GET    | `/api/admin/dashboard`    | Dashboard statistics  |
+| GET    | `/api/admin/users`        | List all users        |
+| GET    | `/api/admin/transactions` | List all transactions |
 
 ## 🏗️ Architecture
 
@@ -188,9 +196,3 @@ node test-fraud-detection.js
 ## 📄 License
 
 This project is licensed under the MIT License.
-
----
-
-<div align="center">
-Made with ❤️ by Team 11
-</div>
