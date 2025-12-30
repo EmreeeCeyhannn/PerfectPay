@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { adminService } from "../services/adminService";
-import DashboardCharts from "./DashboardCharts";
 
 export default function AdminDashboard() {
 	const [stats, setStats] = useState(null);
@@ -100,10 +99,6 @@ export default function AdminDashboard() {
 					</p>
 				</div>
 			</div>
-
-			{/* Dashboard Charts Section */}
-			<DashboardCharts stats={stats} />
 		</div>
 	);
 }
-

@@ -60,13 +60,31 @@ class WisePSP extends PaymentServiceProvider {
 				recipientBankAccount,
 				recipientName,
 				description,
+				cardToken,
 			} = paymentData;
 
+			// Check for test card numbers that should always fail
+			const failingCards = [
+				"5200828282828210", // Wise test card - Always fails
+			];
+
+			const shouldFail = failingCards.some(
+				(card) => cardToken && cardToken.includes(card)
+			);
+
 			// Wise is excellent for FX transfers
-			const isSuccess = Math.random() > 0.01; // 99% success rate
 			const latency = Math.random() * 1000 + 300; // 300-1300ms (international)
 
+			if (shouldFail) {
+				this.updateMetrics(latency, false);
+				throw new Error("Wise: Card declined - Payment authorization failed");
+			}
+
+			// Random failures for other cards (1% failure rate)
+			const isSuccess = Math.random() > 0.01; // 99% success rate
+
 			if (!isSuccess) {
+				this.updateMetrics(latency, false);
 				throw new Error("Wise: Transfer failed");
 			}
 

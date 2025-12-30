@@ -37,7 +37,11 @@ export function PaymentForm() {
 				setSuccess(false);
 			}, 2000);
 		} catch (err) {
-			setError(err.response?.data?.error || "Payment failed");
+			const errorMessage = err.response?.data?.error || "Payment failed";
+			setError(errorMessage);
+
+			if (err.response?.status === 429) {
+			}
 		} finally {
 			setLoading(false);
 		}
@@ -101,133 +105,112 @@ export function PaymentForm() {
 					<p style={{ color: "#3498db" }}>⏳ Processing your payment...</p>
 				</div>
 			)}
-
 			{success && (
 				<div
 					style={{
 						textAlign: "center",
 						padding: "1rem",
-						backgroundColor: "#d4edda",
+						backgroundColor: "#e8f5e9",
 						borderRadius: "6px",
 						marginBottom: "1rem",
-						color: "#155724",
+						color: "#2e7d32",
 					}}
 				>
-					<p>✅ Payment successful!</p>
+					✅ Payment successful!
 				</div>
 			)}
-
-			<form onSubmit={handleSubmit}>
-				<h2
+			{error && (
+				<div
 					style={{
-						color: "#2c3e50",
-						marginBottom: "1.5rem",
 						textAlign: "center",
+						padding: "1rem",
+						backgroundColor: "#ffebee",
+						borderRadius: "6px",
+						marginBottom: "1rem",
+						color: "#c62828",
 					}}
 				>
-					💳 Card Payment
-				</h2>
-
-				{error && (
-					<div
-						style={{
-							padding: "0.75rem",
-							backgroundColor: "#f8d7da",
-							color: "#721c24",
-							borderRadius: "6px",
-							marginBottom: "1.5rem",
-							fontSize: "0.9rem",
-						}}
-					>
-						❌ {error}
-					</div>
-				)}
-
+					{error}
+				</div>
+			)}
+			<form onSubmit={handleSubmit}>
 				<div style={formGroupStyle}>
-					<label style={labelStyle} htmlFor="amount">
-						Amount *
+					<label htmlFor="amount" style={labelStyle}>
+						Amount
 					</label>
 					<input
-						style={inputStyle}
 						type="number"
 						id="amount"
 						name="amount"
 						value={formData.amount}
 						onChange={handleChange}
-						step="0.01"
-						min="0"
-						placeholder="0.00"
+						style={inputStyle}
+						placeholder="e.g., 100.00"
 						required
-						disabled={loading}
 					/>
 				</div>
-
 				<div style={formGroupStyle}>
-					<label style={labelStyle} htmlFor="currency">
-						Currency *
+					<label htmlFor="currency" style={labelStyle}>
+						Currency
 					</label>
 					<select
-						style={inputStyle}
 						id="currency"
 						name="currency"
 						value={formData.currency}
 						onChange={handleChange}
-						disabled={loading}
+						style={inputStyle}
+						required
 					>
-						<option value="USD">USD (US Dollar)</option>
-						<option value="EUR">EUR (Euro)</option>
-						<option value="GBP">GBP (British Pound)</option>
-						<option value="TRY">TRY (Turkish Lira)</option>
+						<option value="USD">USD</option>
+						<option value="EUR">EUR</option>
+						<option value="GBP">GBP</option>
+						<option value="TRY">TRY</option>
 					</select>
 				</div>
-
 				<div style={formGroupStyle}>
-					<label style={labelStyle} htmlFor="cardToken">
-						Card Token *
+					<label htmlFor="cardToken" style={labelStyle}>
+						Card Token
 					</label>
 					<input
-						style={inputStyle}
 						type="text"
 						id="cardToken"
 						name="cardToken"
 						value={formData.cardToken}
 						onChange={handleChange}
-						placeholder="tok_visa (for testing)"
+						style={inputStyle}
+						placeholder="tok_visa"
 						required
-						disabled={loading}
 					/>
-					<small
-						style={{ marginTop: "0.3rem", color: "#666", fontSize: "0.85rem" }}
-					>
-						Use 'tok_visa' for test payments
-					</small>
 				</div>
-
 				<div style={formGroupStyle}>
-					<label style={labelStyle} htmlFor="description">
-						Description (Optional)
+					<label htmlFor="description" style={labelStyle}>
+						Description
 					</label>
-					<textarea
-						style={{ ...inputStyle, resize: "vertical", minHeight: "80px" }}
+					<input
+						type="text"
 						id="description"
 						name="description"
 						value={formData.description}
 						onChange={handleChange}
-						placeholder="Payment description"
-						disabled={loading}
-					></textarea>
+						style={inputStyle}
+						placeholder="e.g., Monthly Subscription"
+						required
+					/>
 				</div>
-
 				<button
 					type="submit"
-					disabled={loading}
 					style={{
 						...buttonStyle,
-						opacity: loading ? 0.7 : 1,
-						cursor: loading ? "not-allowed" : "pointer",
+						backgroundColor: loading || cooldownActive ? "#bdc3c7" : "#3498db",
+						cursor: loading || cooldownActive ? "not-allowed" : "pointer",
 					}}
+					disabled={loading || cooldownActive}
 				>
-					{loading ? "⏳ Processing..." : "💰 Pay Now"}
+					{cooldownActive
+						? `Please wait ${cooldownTime}s`
+						: loading
+						? "Processing..."
+						: "Pay Now"}
 				</button>
 			</form>
 		</div>

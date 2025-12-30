@@ -14,27 +14,18 @@ class TransactionHistoryController {
 			const pool = require("../config/database");
 			const result = await pool.query(
 				`SELECT * FROM transactions 
-				 WHERE sender_id = $1 
-				 ORDER BY created_at DESC 
-				 LIMIT $2 OFFSET $3`,
-				[userId, limit, offset]
-			);
+			 WHERE user_id = $1 
 
 			const userTransactions = result.rows.map((tx) => ({
-				id: tx.transaction_id,
-				date: tx.created_at,
-				amount: tx.amount,
-				currency: tx.from_currency,
-				toCurrency: tx.to_currency,
-				status: tx.status?.toUpperCase() || "PENDING",
-				provider: tx.selected_psp || "Pending",
-				type: "transfer",
-				recipientId: tx.recipient_id,
-				recipientName: tx.recipient_name,
-				fraudScore: tx.fraud_score,
-				senderCountry: tx.sender_country,
-				recipientCountry: tx.recipient_country,
-			}));
+			id: tx.id,
+			date: tx.created_at,
+			amount: tx.amount,
+			currency: tx.currency,
+			toCurrency: tx.currency,
+			status: tx.status?.toUpperCase() || "PENDING",
+			provider: tx.provider_transaction_id ? tx.provider_transaction_id.split('_')[0] : "Pending",
+			type: "transfer",
+			transactionId: tx.provider_transaction_id,
 
 			res.status(200).json({
 				userId,

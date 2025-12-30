@@ -41,14 +41,35 @@ class StripePSP extends PaymentServiceProvider {
 		const startTime = Date.now();
 
 		try {
-			const { amount, currency, cardNumber, description, recipientEmail } =
+			const { amount, currency, cardToken, description, recipientEmail } =
 				paymentData;
 
+			console.log("💳 Stripe PSP - Processing payment");
+			console.log("   Card Token:", cardToken);
+			console.log("   Amount:", amount, currency);
+
+			// Check for test card numbers that should always fail
+			// IMPORTANT: Check exact match for declined card
+			if (cardToken === "4000000000000002") {
+				console.log("❌ STRIPE DECLINED CARD DETECTED!");
+				console.log("   Returning failure for card:", cardToken);
+				this.updateMetrics(500, false);
+				return {
+					success: false,
+					error: "Stripe: Card declined - Insufficient funds",
+					pspName: "Stripe",
+					timestamp: new Date(),
+				};
+			}
+
 			// Simulate Stripe API call
-			const isSuccess = Math.random() > 0.02; // 98% success rate
 			const latency = Math.random() * 800 + 200; // 200-1000ms
 
+			// Random failures for other cards (2% failure rate)
+			const isSuccess = Math.random() > 0.02; // 98% success rate
+
 			if (!isSuccess) {
+				this.updateMetrics(latency, false);
 				throw new Error("Stripe: Payment declined");
 			}
 
@@ -67,7 +88,12 @@ class StripePSP extends PaymentServiceProvider {
 			};
 		} catch (error) {
 			this.updateMetrics(Date.now() - startTime, false);
-			throw error;
+			return {
+				success: false,
+				error: error.message,
+				pspName: "Stripe",
+				timestamp: new Date(),
+			};
 		}
 	}
 

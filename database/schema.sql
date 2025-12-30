@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash VARCHAR(255) NOT NULL,
   full_name VARCHAR(255) NOT NULL,
   phone VARCHAR(20),
-  kyc_status VARCHAR(50) DEFAULT 'pending', -- pending, approved, rejected
+  kyc_status VARCHAR(50) DEFAULT 'approved', -- pending, approved, rejected
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -84,5 +84,7 @@ CREATE INDEX IF NOT EXISTS idx_blacklist_identifier ON blacklist(identifier);
 -- Insert default payment providers
 INSERT INTO payment_providers (name, api_key, is_active) 
 VALUES ('Stripe', 'sk_test_xxxxx', true),
-       ('PayPal', 'pp_test_xxxxx', false)
+       ('PayPal', 'pp_test_xxxxx', false),
+       ('Wise', 'wise_test_xxxxx', true),
+       ('Iyzico', 'iyzico_test_xxxxx', true)
 ON CONFLICT DO NOTHING;

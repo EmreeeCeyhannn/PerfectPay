@@ -8,8 +8,8 @@ const authMiddleware = require("../middleware/auth");
  * Base: /api/card
  */
 
-// Process a card payment
-router.post("/process", CardPaymentController.processPayment);
+// Process a card payment (protected)
+router.post("/process", authMiddleware, CardPaymentController.processPayment);
 
 // // Get user's card payment history
 // router.get("/history", CardPaymentController.getCardPaymentHistory);

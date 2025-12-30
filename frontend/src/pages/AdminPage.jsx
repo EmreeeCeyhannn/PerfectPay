@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Layout from "../components/Layout";
+import AdminLayout from "../components/AdminLayout";
 import AdminDashboard from "../components/AdminDashboard";
 import AdminUserList from "../components/AdminUserList";
 import AdminTransactionList from "../components/AdminTransactionList";
@@ -24,7 +24,7 @@ export default function AdminPage() {
 	};
 
 	return (
-		<Layout>
+		<AdminLayout>
 			<div className="admin-page-container" style={{ padding: "2rem" }}>
 				<h1>Admin Panel</h1>
 				<div
@@ -83,6 +83,6 @@ export default function AdminPage() {
 				</div>
 				<div className="admin-content">{renderContent()}</div>
 			</div>
-		</Layout>
+		</AdminLayout>
 	);
 }

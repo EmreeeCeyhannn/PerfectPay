@@ -1,0 +1,28 @@
+﻿					</div>
+
+					<div className="form-section">
+						<h3>ï¿½ Payment Card</h3>
+						<select
+							value={selectedCard}
+							onChange={(e) => setSelectedCard(e.target.value)}
+							className="form-select"
+							required
+						>
+							<option value="">Select a card</option>
+							{cards.map((card) => (
+								<option key={card.card_token} value={card.card_token}>
+									{card.card_brand} â€¢â€¢â€¢â€¢ {card.last_four}{" "}
+									{card.is_primary ? "(Primary)" : ""}
+								</option>
+							))}
+						</select>
+						{cards.length === 0 && (
+							<p className="info-text">
+								No cards available. Please add a card first.
+							</p>
+						)}
+					</div>
+
+					<div className="form-section">
+						<h3>ï¿½ğŸ’° Amount & Currency</h3>
+						<div className="amount-row">

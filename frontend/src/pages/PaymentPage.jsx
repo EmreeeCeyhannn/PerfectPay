@@ -4,9 +4,17 @@ import { PaymentForm } from "../components/PaymentForm";
 import TransferForm from "../components/TransferForm";
 import PSPAnalytics from "../components/PSPAnalytics";
 import { TransactionHistory } from "../components/TransactionHistory";
+import MyCards from "../components/MyCards";
+import AddCard from "../components/AddCard";
 
 export function PaymentPage() {
 	const [activeTab, setActiveTab] = useState("transfer");
+	const [refreshCards, setRefreshCards] = useState(0);
+
+	const handleCardAdded = () => {
+		// Trigger a refresh of the MyCards component
+		setRefreshCards((prev) => prev + 1);
+	};
 
 	return (
 		<>
@@ -130,10 +138,10 @@ export function PaymentPage() {
 						}}
 					>
 						<div>
-							<PaymentForm />
+							<AddCard onCardAdded={handleCardAdded} />
 						</div>
 						<div>
-							<TransactionHistory />
+							<MyCards key={refreshCards} />
 						</div>
 					</div>
 				)}

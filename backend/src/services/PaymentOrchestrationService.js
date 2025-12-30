@@ -21,6 +21,11 @@ class PaymentOrchestrationService {
 			description = "",
 		} = transferData;
 
+		// Generate transaction ID outside try block so it's accessible in catch
+		const transactionId = `tx_pending_${Date.now()}${Math.random()
+			.toString(36)
+			.substring(7)}`;
+
 		try {
 			// Check Blacklist
 			const isBlacklisted = await this.checkBlacklist(senderId);
@@ -28,14 +33,9 @@ class PaymentOrchestrationService {
 				return {
 					success: false,
 					status: "DECLINED",
-					error: "Transaction blocked due to security policies."
+					error: "Transaction blocked due to security policies.",
 				};
 			}
-
-			// Generate transaction ID immediately
-			const transactionId = `tx_pending_${Date.now()}${Math.random()
-				.toString(36)
-				.substring(7)}`;
 
 			// Save transaction as PENDING immediately (before processing)
 			console.log("💾 Creating pending transaction record...");
@@ -176,6 +176,7 @@ class PaymentOrchestrationService {
 				sourceCountry: senderCountry,
 				destCountry: recipientCountry,
 				transactionId: transactionId, // Pass the existing transaction ID
+				cardToken: transferData.cardToken, // Pass card token for Stripe
 			};
 
 			// Step 4: Execute Payment via Selected PSP
@@ -188,6 +189,34 @@ class PaymentOrchestrationService {
 			await new Promise((resolve) => setTimeout(resolve, pspProcessingTime));
 
 			const paymentResult = await psp.processPayment(paymentData);
+
+			// Check if payment failed at PSP level
+			if (!paymentResult.success) {
+				console.log(
+					"❌ PSP Payment Failed:",
+					paymentResult.error || paymentResult.message
+				);
+
+				// Update transaction status to failed
+				await pool.query(
+					`UPDATE transactions 
+					SET status = $1, updated_at = NOW()
+					WHERE transaction_id = $2`,
+					["failed", transactionId]
+				);
+
+				return {
+					success: false,
+					status: "FAILED",
+					transactionId: transactionId,
+					selectedPSP: selectedPSP,
+					error:
+						paymentResult.error ||
+						paymentResult.message ||
+						"Payment declined by provider",
+					timestamp: new Date(),
+				};
+			}
 
 			// Step 5: Update transaction status to completed
 			console.log("💾 Step 5: Updating transaction status to completed...");
@@ -295,25 +324,48 @@ class PaymentOrchestrationService {
 					fxRate: routingAnalysis.optimal.exchangeRate,
 					commission: routingAnalysis.optimal.breakdown.commission,
 					selectedPSP,
-					senderEmail: transferData.senderEmail || 'N/A',
-					recipientEmail: transferData.recipientEmail || 'N/A',
-					status: 'completed',
-					createdAt: new Date()
+					senderEmail: transferData.senderEmail || "N/A",
+					recipientEmail: transferData.recipientEmail || "N/A",
+					status: "completed",
+					createdAt: new Date(),
 				};
 				const receipt = await receiptGenerator.saveReceipt(receiptData);
 				transactionResponse.receipt = receipt;
 				console.log("✅ Receipt generated:", receipt.filename);
 			} catch (receiptError) {
-				console.error("⚠️ Receipt generation failed (continuing):", receiptError.message);
+				console.error(
+					"⚠️ Receipt generation failed (continuing):",
+					receiptError.message
+				);
 			}
 
 			return transactionResponse;
 		} catch (error) {
 			console.error("❌ Transaction failed:", error.message);
 
+			// Update transaction status to FAILED in database
+			try {
+				await pool.query(
+					`UPDATE transactions 
+					SET status = $1, updated_at = NOW()
+					WHERE transaction_id = $2`,
+					["failed", transactionId]
+				);
+				console.log(
+					"💾 Transaction marked as FAILED in database:",
+					transactionId
+				);
+			} catch (dbError) {
+				console.error(
+					"⚠️ Failed to update transaction status:",
+					dbError.message
+				);
+			}
+
 			return {
 				success: false,
 				status: "FAILED",
+				transactionId: transactionId,
 				error: error.message,
 				timestamp: new Date(),
 			};
@@ -442,8 +494,9 @@ class PaymentOrchestrationService {
 					timestamp: transactionStart,
 					duration: "0.1s",
 					location: userLocation.city,
-					details: `Payment request from ${transaction.sender_email || "user"
-						} for ${transaction.amount} ${transaction.from_currency}`,
+					details: `Payment request from ${
+						transaction.sender_email || "user"
+					} for ${transaction.amount} ${transaction.from_currency}`,
 				},
 				{
 					step: 2,
@@ -452,8 +505,9 @@ class PaymentOrchestrationService {
 					timestamp: new Date(transactionStart.getTime() + 100),
 					duration: `${fraudCheckDuration}s`,
 					location: perfectPayServer.city,
-					details: `7 security rules evaluated, risk score: ${transaction.fraud_score || 0
-						} (${transaction.fraud_status?.toUpperCase() || "LOW"})`,
+					details: `7 security rules evaluated, risk score: ${
+						transaction.fraud_score || 0
+					} (${transaction.fraud_status?.toUpperCase() || "LOW"})`,
 				},
 				{
 					step: 3,
@@ -472,9 +526,9 @@ class PaymentOrchestrationService {
 					status: isCompleted ? "completed" : "in-progress",
 					timestamp: new Date(
 						transactionStart.getTime() +
-						100 +
-						fraudCheckDuration * 1000 +
-						routingDuration * 1000
+							100 +
+							fraudCheckDuration * 1000 +
+							routingDuration * 1000
 					),
 					duration: isCompleted ? `${pspAuthDuration}s` : null,
 					location: pspLocation.city,
@@ -487,12 +541,12 @@ class PaymentOrchestrationService {
 					duration: isCompleted ? `${settlementDuration}s` : null,
 					timestamp: isCompleted
 						? new Date(
-							transactionStart.getTime() +
-							100 +
-							fraudCheckDuration * 1000 +
-							routingDuration * 1000 +
-							pspAuthDuration * 1000
-						)
+								transactionStart.getTime() +
+									100 +
+									fraudCheckDuration * 1000 +
+									routingDuration * 1000 +
+									pspAuthDuration * 1000
+						  )
 						: null,
 					location: pspLocation.city,
 					details: isCompleted
@@ -505,22 +559,23 @@ class PaymentOrchestrationService {
 					status: isCompleted ? "completed" : "pending",
 					timestamp: isCompleted
 						? new Date(
-							transactionStart.getTime() +
-							100 +
-							(fraudCheckDuration +
-								routingDuration +
-								pspAuthDuration +
-								settlementDuration) *
-							1000
-						)
+								transactionStart.getTime() +
+									100 +
+									(fraudCheckDuration +
+										routingDuration +
+										pspAuthDuration +
+										settlementDuration) *
+										1000
+						  )
 						: null,
 					duration: isCompleted ? "0.5s" : null,
 					location: userLocation.city,
 					details: isCompleted
-						? `Confirmation sent to ${transaction.recipient_email ||
-						transaction.recipient_name ||
-						"recipient"
-						}`
+						? `Confirmation sent to ${
+								transaction.recipient_email ||
+								transaction.recipient_name ||
+								"recipient"
+						  }`
 						: "Pending completion",
 				},
 			];
@@ -529,11 +584,12 @@ class PaymentOrchestrationService {
 				transactionId,
 				overview: {
 					totalDuration: isCompleted
-						? `${fraudCheckDuration +
-						routingDuration +
-						pspAuthDuration +
-						settlementDuration
-						}s`
+						? `${
+								fraudCheckDuration +
+								routingDuration +
+								pspAuthDuration +
+								settlementDuration
+						  }s`
 						: "In progress...",
 					status: transaction.status,
 					path: `${userLocation.city} → ${perfectPayServer.city} → ${pspLocation.city} → ${recipientLocation.city}`,
@@ -887,7 +943,10 @@ class PaymentOrchestrationService {
 
 	async checkBlacklist(userId) {
 		try {
-			const userRes = await pool.query("SELECT email FROM users WHERE id = $1", [userId]);
+			const userRes = await pool.query(
+				"SELECT email FROM users WHERE id = $1",
+				[userId]
+			);
 			if (userRes.rows.length === 0) return false;
 			const email = userRes.rows[0].email;
 

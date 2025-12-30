@@ -70,12 +70,10 @@ class Transaction {
 	static async findByTransactionId(transactionId) {
 		const result = await pool.query(
 			`SELECT t.*, 
-			        u1.email as sender_email,
-			        u2.email as recipient_email
+			        u1.email as sender_email
 			 FROM transactions t
-			 LEFT JOIN users u1 ON t.sender_id = u1.id
-			 LEFT JOIN users u2 ON t.recipient_id = u2.id
-			 WHERE t.transaction_id = $1`,
+			 LEFT JOIN users u1 ON t.user_id = u1.id
+			 WHERE t.provider_transaction_id = $1`,
 			[transactionId]
 		);
 		return result.rows[0];

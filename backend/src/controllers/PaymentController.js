@@ -96,8 +96,9 @@ class PaymentController {
 				userMode = "balanced",
 				description = "",
 				preferredProvider, // Manual PSP selection
+				cardToken, // Card token for payment
 			} = req.body;
-
+			console.log("💳 PaymentController - Received cardToken:", cardToken);
 			// Validation
 			if (!recipientId || !amount || !fromCurrency || !toCurrency) {
 				return res.status(400).json({
@@ -128,6 +129,7 @@ class PaymentController {
 				ipAddress: req.ip,
 				deviceId: req.headers["user-agent"],
 				preferredProvider, // Pass manual selection to service
+				cardToken, // Pass card token for Stripe
 			});
 
 			if (result.success) {
@@ -349,15 +351,36 @@ class PaymentController {
 
 			if (!amount || !currency) {
 				return res.status(400).json({
-					error: "Missing required fields: amount, currency"
+					error: "Missing required fields: amount, currency",
 				});
 			}
 
 			// If cards not provided, use mock cards for demo
 			const availableCards = cards || [
-				{ id: 1, last4: '4242', type: 'visa', balance: 300, isActive: true, fixedFee: 0.30 },
-				{ id: 2, last4: '5555', type: 'mastercard', balance: 250, isActive: true, fixedFee: 0.30 },
-				{ id: 3, last4: '3782', type: 'amex', balance: 500, isActive: true, fixedFee: 0.30 }
+				{
+					id: 1,
+					last4: "4242",
+					type: "visa",
+					balance: 300,
+					isActive: true,
+					fixedFee: 0.3,
+				},
+				{
+					id: 2,
+					last4: "5555",
+					type: "mastercard",
+					balance: 250,
+					isActive: true,
+					fixedFee: 0.3,
+				},
+				{
+					id: 3,
+					last4: "3782",
+					type: "amex",
+					balance: 500,
+					isActive: true,
+					fixedFee: 0.3,
+				},
 			];
 
 			const analysis = multiCardOptimizer.analyzeMultiCardOption(
@@ -367,7 +390,7 @@ class PaymentController {
 
 			res.status(200).json({
 				success: true,
-				analysis
+				analysis,
 			});
 		} catch (error) {
 			console.error("Multi-card analysis error:", error);

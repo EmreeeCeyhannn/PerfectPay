@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
+import { AdminLoginPage } from "./pages/AdminLoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { PaymentPage } from "./pages/PaymentPage";
 import { ProfilePage } from "./pages/ProfilePage";
@@ -35,11 +36,33 @@ function ProtectedRoute({ children }) {
 	return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
+function AdminProtectedRoute({ children }) {
+	const { isAuthenticated, loading } = useAuth();
+
+	if (loading) {
+		return (
+			<div
+				style={{
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					minHeight: "100vh",
+				}}
+			>
+				<div className="spinner"></div>
+			</div>
+		);
+	}
+
+	return isAuthenticated ? children : <Navigate to="/admin/login" replace />;
+}
+
 function AppRoutes() {
 	return (
 		<Routes>
 			<Route path="/" element={<HomePage />} />
 			<Route path="/login" element={<LoginPage />} />
+			<Route path="/admin/login" element={<AdminLoginPage />} />
 			<Route path="/register" element={<RegisterPage />} />
 			<Route
 				path="/payment"
@@ -52,9 +75,9 @@ function AppRoutes() {
 			<Route
 				path="/admin"
 				element={
-					<ProtectedRoute>
+					<AdminProtectedRoute>
 						<AdminPage />
-					</ProtectedRoute>
+					</AdminProtectedRoute>
 				}
 			/>
 			<Route

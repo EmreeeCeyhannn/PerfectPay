@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { paymentService } from "../services/paymentService";
 import TransactionMap from "./TransactionMap";
+import apiClient from "../services/api";
 import "./TransferForm.css";
 
 export default function TransferForm({ onSuccess }) {
@@ -13,6 +14,8 @@ export default function TransferForm({ onSuccess }) {
 	const [error, setError] = useState("");
 	const [success, setSuccess] = useState("");
 	const [transactionId, setTransactionId] = useState(null);
+	const [cards, setCards] = useState([]);
+	const [selectedCard, setSelectedCard] = useState("");
 
 	const [formData, setFormData] = useState({
 		recipientName: "",
@@ -45,6 +48,26 @@ export default function TransferForm({ onSuccess }) {
 		{ value: "fast", label: "⚡ Fastest Route" },
 		{ value: "balanced", label: "⚖️ Balanced" },
 	];
+
+	// Fetch user's saved cards on component mount
+	useEffect(() => {
+		const fetchCards = async () => {
+			try {
+				const response = await apiClient.get("/user/cards");
+				setCards(response.data.cards || []);
+				// Auto-select primary card if available
+				const primaryCard = response.data.cards?.find(
+					(card) => card.is_primary
+				);
+				if (primaryCard) {
+					setSelectedCard(primaryCard.card_token);
+				}
+			} catch (err) {
+				console.error("Failed to fetch cards:", err);
+			}
+		};
+		fetchCards();
+	}, []);
 
 	const handleInputChange = (e) => {
 		const { name, value } = e.target;
@@ -101,6 +124,13 @@ export default function TransferForm({ onSuccess }) {
 		setLoading(true);
 		setError("");
 
+		// Validate card selection
+		if (!selectedCard) {
+			setError("❌ Please select a payment card");
+			setLoading(false);
+			return;
+		}
+
 		try {
 			const transferData = {
 				recipientId: Math.random().toString(36),
@@ -116,6 +146,7 @@ export default function TransferForm({ onSuccess }) {
 				recipientBankAccount: formData.recipientBankAccount,
 				userMode: formData.userMode,
 				description: formData.description,
+				cardToken: selectedCard, // Include selected card token
 			};
 
 			// Add selected PSP if user manually chose one
@@ -305,7 +336,7 @@ export default function TransferForm({ onSuccess }) {
 					</div>
 
 					<div className="form-section">
-						<h3>💰 Amount & Currency</h3>
+						<h3>�💰 Amount & Currency</h3>
 						<div className="amount-row">
 							<input
 								type="number"
@@ -624,7 +655,6 @@ export default function TransferForm({ onSuccess }) {
 					</button>
 					<button
 						onClick={() => {
-							setSelectedPSP(null); // Optimal route kullan
 							setStep("confirm");
 						}}
 						className="button-primary"
@@ -643,6 +673,33 @@ export default function TransferForm({ onSuccess }) {
 		const currentRoute = selectedPSP
 			? selectedRoute?.alternatives.find((alt) => alt.pspName === selectedPSP)
 			: selectedRoute?.estimatedRoute;
+
+		// Filter cards by selected PSP provider
+		const pspCards = cards.filter((card) => {
+			const cardBrand = card.card_brand.toLowerCase();
+			const psp = currentPSP.toLowerCase();
+
+			// Match card brands to PSPs
+			if (
+				psp === "stripe" &&
+				(cardBrand === "visa" || cardBrand === "mastercard")
+			)
+				return true;
+			if (
+				psp === "wise" &&
+				(cardBrand === "visa" || cardBrand === "mastercard")
+			)
+				return true;
+			if (psp === "paypal" && cardBrand === "amex") return true;
+			if (psp === "iyzico" && cardBrand === "mastercard") return true;
+			if (psp === "İyzico" && cardBrand === "mastercard") return true;
+			return false;
+		});
+
+		// Auto-select first available card for this PSP
+		if (pspCards.length > 0 && !selectedCard) {
+			setSelectedCard(pspCards[0].card_token);
+		}
 
 		// Dinamik işlem süresi hesaplama (realistic seconds/minutes)
 		const calculateEstimatedTime = () => {
@@ -718,6 +775,35 @@ export default function TransferForm({ onSuccess }) {
 					<div className="confirm-row">
 						<span>Route:</span>
 						<span className="highlight">{currentPSP}</span>
+					</div>
+					<div className="confirm-row">
+						<span>Payment Card:</span>
+						<span className="highlight">
+							{pspCards.length > 0 ? (
+								<select
+									value={selectedCard}
+									onChange={(e) => setSelectedCard(e.target.value)}
+									style={{
+										padding: "8px",
+										borderRadius: "4px",
+										border: "1px solid #ddd",
+										fontSize: "14px",
+										cursor: "pointer",
+									}}
+								>
+									{pspCards.map((card) => (
+										<option key={card.card_token} value={card.card_token}>
+											{card.card_brand.toUpperCase()} •••• {card.last_four}
+											{card.is_primary ? " (Primary)" : ""}
+										</option>
+									))}
+								</select>
+							) : (
+								<span style={{ color: "#dc3545" }}>
+									No cards available for {currentPSP}
+								</span>
+							)}
+						</span>
 					</div>
 					<div className="confirm-row">
 						<span>Estimated Time:</span>

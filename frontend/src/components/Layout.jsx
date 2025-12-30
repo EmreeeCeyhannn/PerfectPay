@@ -67,18 +67,6 @@ export function Header() {
 											Profile
 										</a>
 									</li>
-									<li>
-										<a
-											href="/admin"
-											style={{
-												borderBottom: isActive("/admin")
-													? "2px solid #3498db"
-													: "none",
-											}}
-										>
-											Admin
-										</a>
-									</li>
 								</>
 							)}
 						</ul>
