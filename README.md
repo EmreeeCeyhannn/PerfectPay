@@ -188,10 +188,10 @@ node test-fraud-detection.js
 
 ## 👥 Team
 
-- **Emre Ceyhan** (21118080034) - Scrum Master, Backend Lead
-- **Kıvanç Avcı** (22118080038) - Frontend Lead
-- **Necmettin Sönmez** (22118080037) - Database & UI Components
-- **Yaren Dönmez** (21118080035) - Documentation & Testing
+- **Emre Ceyhan** (21118080034) - Scrum Master
+- **Kıvanç Avcı** (22118080038)
+- **Necmettin Sönmez** (22118080037)
+- **Yaren Dönmez** (21118080035)
 
 ## 📄 License
 
