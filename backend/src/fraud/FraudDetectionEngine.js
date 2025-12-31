@@ -20,6 +20,7 @@ class FraudDetectionEngine {
 	assessRisk(transactionData, userHistory = []) {
 		let riskScore = 0;
 		const violations = [];
+		let autoLogout = false;
 
 		const {
 			amount,
@@ -42,6 +43,7 @@ class FraudDetectionEngine {
 		const rapidCheck = this.checkRapidTransactions(userId, timestamp);
 		riskScore += rapidCheck.score;
 		if (rapidCheck.violated) violations.push(rapidCheck.reason);
+		if (rapidCheck.autoLogout) autoLogout = true;
 
 		// Rule 2: Unusual Amount (0-25 points)
 		const amountCheck = this.checkUnusualAmount(
@@ -51,6 +53,7 @@ class FraudDetectionEngine {
 		);
 		riskScore += amountCheck.score;
 		if (amountCheck.violated) violations.push(amountCheck.reason);
+		if (amountCheck.autoLogout) autoLogout = true;
 
 		// Rule 3: Geolocation Anomaly (0-30 points)
 		const geoCheck = this.checkGeolocationAnomaly(
@@ -96,6 +99,7 @@ class FraudDetectionEngine {
 			riskLevel: this.getRiskLevel(riskScore),
 			action,
 			violations,
+			autoLogout,
 			breakdown: {
 				rapidTransactions: rapidCheck.score,
 				unusualAmount: amountCheck.score,

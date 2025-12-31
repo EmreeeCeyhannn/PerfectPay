@@ -100,6 +100,12 @@ class PaymentOrchestrationService {
 
 			// If HIGH risk, decline (DO NOT record the transaction)
 			if (fraudCheck.action === "DECLINE") {
+				if (fraudCheck.autoLogout) {
+					const reason =
+						fraudCheck.violations.join("; ") || "Suspicious activity detected";
+					await this.addToBlacklist(senderId, reason);
+				}
+
 				return {
 					success: false,
 					status: "DECLINED",
@@ -957,6 +963,29 @@ class PaymentOrchestrationService {
 			return result.rows.length > 0;
 		} catch (error) {
 			console.error("Blacklist check failed:", error);
+			return false;
+		}
+	}
+
+	async addToBlacklist(userId, reason) {
+		try {
+			const userRes = await pool.query(
+				"SELECT email FROM users WHERE id = $1",
+				[userId]
+			);
+			if (userRes.rows.length === 0) return false;
+			const email = userRes.rows[0].email;
+
+			await pool.query(
+				"INSERT INTO blacklist (identifier, reason) VALUES ($1, $2) ON CONFLICT (identifier) DO NOTHING",
+				[email, reason]
+			);
+			console.log(
+				`🚨 User ${userId} (${email}) added to blacklist. Reason: ${reason}`
+			);
+			return true;
+		} catch (error) {
+			console.error("Failed to add to blacklist:", error);
 			return false;
 		}
 	}

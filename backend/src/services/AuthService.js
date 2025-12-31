@@ -20,6 +20,12 @@ class AuthService {
 	}
 
 	static async login(email, password) {
+		// Check if user is blacklisted
+		const isBlacklisted = await User.isBlacklisted(email);
+		if (isBlacklisted) {
+			throw new Error("Account suspended. Please contact support.");
+		}
+
 		const user = await User.findByEmail(email);
 		if (!user) {
 			throw new Error("Invalid email or password");

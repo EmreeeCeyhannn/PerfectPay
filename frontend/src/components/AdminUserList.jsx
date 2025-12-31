@@ -19,6 +19,24 @@ export default function AdminUserList() {
 		fetchUsers();
 	}, []);
 
+	const handleSuspend = async (email) => {
+		if (
+			!window.confirm(
+				`Are you sure you want to suspend user ${email}? They will be added to the blacklist.`
+			)
+		) {
+			return;
+		}
+
+		try {
+			await adminService.addToBlacklist(email, "Manual suspension by admin");
+			alert(`User ${email} has been suspended.`);
+		} catch (error) {
+			console.error("Failed to suspend user", error);
+			alert("Failed to suspend user");
+		}
+	};
+
 	if (loading) return <div>Loading users...</div>;
 
 	return (
@@ -33,6 +51,7 @@ export default function AdminUserList() {
 						<th style={{ padding: "0.5rem" }}>Phone</th>
 						<th style={{ padding: "0.5rem" }}>KYC Status</th>
 						<th style={{ padding: "0.5rem" }}>Joined</th>
+						<th style={{ padding: "0.5rem" }}>Actions</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -58,6 +77,21 @@ export default function AdminUserList() {
 							</td>
 							<td style={{ padding: "0.5rem" }}>
 								{new Date(user.created_at).toLocaleDateString()}
+							</td>
+							<td style={{ padding: "0.5rem" }}>
+								<button
+									onClick={() => handleSuspend(user.email)}
+									style={{
+										padding: "0.25rem 0.5rem",
+										backgroundColor: "#dc3545",
+										color: "white",
+										border: "none",
+										borderRadius: "4px",
+										cursor: "pointer",
+									}}
+								>
+									Suspend
+								</button>
 							</td>
 						</tr>
 					))}

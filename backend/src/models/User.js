@@ -41,6 +41,14 @@ class User {
 	static async verifyPassword(password, hashedPassword) {
 		return await bcrypt.compare(password, hashedPassword);
 	}
+
+	static async isBlacklisted(email) {
+		const result = await pool.query(
+			"SELECT * FROM blacklist WHERE identifier = $1",
+			[email]
+		);
+		return result.rows.length > 0;
+	}
 }
 
 module.exports = User;

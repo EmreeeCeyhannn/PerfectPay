@@ -110,6 +110,43 @@ class AdminController {
 			res.status(500).json({ error: "Failed to update provider preferences" });
 		}
 	}
+
+	static async getBlacklist(req, res) {
+		try {
+			const result = await pool.query(
+				"SELECT * FROM blacklist ORDER BY created_at DESC"
+			);
+			res.json(result.rows);
+		} catch (error) {
+			console.error("Get blacklist error:", error);
+			res.status(500).json({ error: "Failed to fetch blacklist" });
+		}
+	}
+
+	static async removeFromBlacklist(req, res) {
+		const { id } = req.params;
+		try {
+			await pool.query("DELETE FROM blacklist WHERE id = $1", [id]);
+			res.json({ message: "Removed from blacklist" });
+		} catch (error) {
+			console.error("Remove from blacklist error:", error);
+			res.status(500).json({ error: "Failed to remove from blacklist" });
+		}
+	}
+
+	static async addToBlacklist(req, res) {
+		const { email, reason } = req.body;
+		try {
+			await pool.query(
+				"INSERT INTO blacklist (identifier, reason) VALUES ($1, $2) ON CONFLICT (identifier) DO NOTHING",
+				[email, reason || "Manual suspension by admin"]
+			);
+			res.json({ message: "User added to blacklist" });
+		} catch (error) {
+			console.error("Add to blacklist error:", error);
+			res.status(500).json({ error: "Failed to add to blacklist" });
+		}
+	}
 }
 
 module.exports = AdminController;

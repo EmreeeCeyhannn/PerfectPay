@@ -28,5 +28,12 @@ router.put(
 	authMiddleware,
 	AdminController.updateProviderPreferences
 );
+router.get("/blacklist", authMiddleware, AdminController.getBlacklist);
+router.delete(
+	"/blacklist/:id",
+	authMiddleware,
+	AdminController.removeFromBlacklist
+);
+router.post("/blacklist", authMiddleware, AdminController.addToBlacklist);
 
 module.exports = router;

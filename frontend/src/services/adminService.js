@@ -29,4 +29,16 @@ export const adminService = {
 		const response = await api.put("/admin/providers", data);
 		return response.data;
 	},
+	getBlacklist: async () => {
+		const response = await api.get("/admin/blacklist");
+		return response.data;
+	},
+	removeFromBlacklist: async (id) => {
+		const response = await api.delete(`/admin/blacklist/${id}`);
+		return response.data;
+	},
+	addToBlacklist: async (email, reason) => {
+		const response = await api.post("/admin/blacklist", { email, reason });
+		return response.data;
+	},
 };

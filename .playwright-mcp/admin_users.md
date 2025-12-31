@@ -1,0 +1,97 @@
+### New console messages
+- [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://loca...
+- [ERROR] Failed to fetch blacklist: AxiosError @ http://localhost:5175/src/components/AdminBlacklist....
+- [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://loca...
+- [ERROR] Failed to fetch blacklist: AxiosError @ http://localhost:5175/src/components/AdminBlacklist....
+
+### Page state
+- Page URL: http://localhost:5175/admin
+- Page Title: PerfectPay
+- Page Snapshot:
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - generic [ref=e7] [cursor=pointer]: 🛡️ PerfectPay Admin
+      - generic [ref=e8]:
+        - generic [ref=e9]: "Admin: Admin Demo"
+        - button "Logout" [ref=e10] [cursor=pointer]
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - heading "Admin Panel" [level=1] [ref=e13]
+      - generic [ref=e14]:
+        - button "Dashboard" [ref=e15] [cursor=pointer]
+        - button "Users" [ref=e16] [cursor=pointer]
+        - button "Transactions" [ref=e17] [cursor=pointer]
+        - button "Blacklist" [ref=e18] [cursor=pointer]
+        - button "Settings" [ref=e19] [cursor=pointer]
+      - generic [ref=e42]:
+        - heading "Users" [level=2] [ref=e43]
+        - table [ref=e44]:
+          - rowgroup [ref=e45]:
+            - row "ID Name Email Phone KYC Status Joined Actions" [ref=e46]:
+              - columnheader "ID" [ref=e47]
+              - columnheader "Name" [ref=e48]
+              - columnheader "Email" [ref=e49]
+              - columnheader "Phone" [ref=e50]
+              - columnheader "KYC Status" [ref=e51]
+              - columnheader "Joined" [ref=e52]
+              - columnheader "Actions" [ref=e53]
+          - rowgroup [ref=e54]:
+            - row "7 Admin Demo admin_demo@example.com 1234567890 approved 30.12.2025 Suspend" [ref=e55]:
+              - cell "7" [ref=e56]
+              - cell "Admin Demo" [ref=e57]
+              - cell "admin_demo@example.com" [ref=e58]
+              - cell "1234567890" [ref=e59]
+              - cell "approved" [ref=e60]
+              - cell "30.12.2025" [ref=e61]
+              - cell "Suspend" [ref=e62]:
+                - button "Suspend" [active] [ref=e63] [cursor=pointer]
+            - row "5 testt test2@example.com 11 approved 30.12.2025 Suspend" [ref=e64]:
+              - cell "5" [ref=e65]
+              - cell "testt" [ref=e66]
+              - cell "test2@example.com" [ref=e67]
+              - cell "11" [ref=e68]
+              - cell "approved" [ref=e69]
+              - cell "30.12.2025" [ref=e70]
+              - cell "Suspend" [ref=e71]:
+                - button "Suspend" [ref=e72] [cursor=pointer]
+            - row "4 a user2@gmail.com 1 approved 30.12.2025 Suspend" [ref=e73]:
+              - cell "4" [ref=e74]
+              - cell "a" [ref=e75]
+              - cell "user2@gmail.com" [ref=e76]
+              - cell "1" [ref=e77]
+              - cell "approved" [ref=e78]
+              - cell "30.12.2025" [ref=e79]
+              - cell "Suspend" [ref=e80]:
+                - button "Suspend" [ref=e81] [cursor=pointer]
+            - row "3 Test User test@example.com 1234567890 approved 30.12.2025 Suspend" [ref=e82]:
+              - cell "3" [ref=e83]
+              - cell "Test User" [ref=e84]
+              - cell "test@example.com" [ref=e85]
+              - cell "1234567890" [ref=e86]
+              - cell "approved" [ref=e87]
+              - cell "30.12.2025" [ref=e88]
+              - cell "Suspend" [ref=e89]:
+                - button "Suspend" [ref=e90] [cursor=pointer]
+            - row "2 a a@gmail.com 1 approved 30.12.2025 Suspend" [ref=e91]:
+              - cell "2" [ref=e92]
+              - cell "a" [ref=e93]
+              - cell "a@gmail.com" [ref=e94]
+              - cell "1" [ref=e95]
+              - cell "approved" [ref=e96]
+              - cell "30.12.2025" [ref=e97]
+              - cell "Suspend" [ref=e98]:
+                - button "Suspend" [ref=e99] [cursor=pointer]
+            - row "1 Test Admin testadmin@example.com 1234567890 approved 30.12.2025 Suspend" [ref=e100]:
+              - cell "1" [ref=e101]
+              - cell "Test Admin" [ref=e102]
+              - cell "testadmin@example.com" [ref=e103]
+              - cell "1234567890" [ref=e104]
+              - cell "approved" [ref=e105]
+              - cell "30.12.2025" [ref=e106]
+              - cell "Suspend" [ref=e107]:
+                - button "Suspend" [ref=e108] [cursor=pointer]
+  - contentinfo [ref=e39]:
+    - paragraph [ref=e41]: © 2025 PerfectPay Admin Portal. Restricted Access.
+```

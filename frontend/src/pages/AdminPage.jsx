@@ -4,6 +4,7 @@ import AdminDashboard from "../components/AdminDashboard";
 import AdminUserList from "../components/AdminUserList";
 import AdminTransactionList from "../components/AdminTransactionList";
 import AdminSettings from "../components/AdminSettings";
+import AdminBlacklist from "../components/AdminBlacklist";
 
 export default function AdminPage() {
 	const [activeTab, setActiveTab] = useState("dashboard");
@@ -18,6 +19,8 @@ export default function AdminPage() {
 				return <AdminTransactionList />;
 			case "settings":
 				return <AdminSettings />;
+			case "blacklist":
+				return <AdminBlacklist />;
 			default:
 				return <AdminDashboard />;
 		}
@@ -68,6 +71,17 @@ export default function AdminPage() {
 						}}
 					>
 						Transactions
+					</button>
+					<button
+						onClick={() => setActiveTab("blacklist")}
+						style={{
+							padding: "0.5rem 1rem",
+							background: activeTab === "blacklist" ? "#eee" : "none",
+							border: "none",
+							cursor: "pointer",
+						}}
+					>
+						Blacklist
 					</button>
 					<button
 						onClick={() => setActiveTab("settings")}
